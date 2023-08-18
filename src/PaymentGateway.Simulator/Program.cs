@@ -8,7 +8,7 @@ using System.Text;
 TokenResponse _jwtToken = null;
 Guid _transactionId = Guid.NewGuid();
 
-Console.WriteLine("PaymentGateway Simulator");
+Console.WriteLine("PaymentGateway Simulator\n");
 
 try
 {
@@ -26,7 +26,7 @@ catch (Exception ex)
 
 async Task FetchJwtToken()
 {
-    Console.WriteLine("Fetch Jwt Token from Identity Server...");
+    Console.WriteLine("Fetch Jwt Token from Identity Server\n");
 
     // discover endpoints from metadata
     var client = new HttpClient();
@@ -50,8 +50,8 @@ async Task FetchJwtToken()
         Console.WriteLine(jwtResponse.Error);
     }
 
-    Console.WriteLine(jwtResponse.Json);
-    Console.WriteLine(jwtResponse.AccessToken);
+    Console.WriteLine($"JWT Token created: \n{jwtResponse.Json}\n");
+    //Console.WriteLine(jwtResponse.AccessToken);
 
     _jwtToken = jwtResponse;
 
@@ -61,7 +61,7 @@ async Task FetchJwtToken()
 
 async Task SubmitPayment()
 {
-    Console.WriteLine("Submit Payment for processing to the Gateway");
+    Console.WriteLine("Submit Payment for processing to the Gateway\n");
 
     // call api
     var client = new HttpClient();
@@ -78,8 +78,9 @@ async Task SubmitPayment()
     {
         var content = await response.Content.ReadAsStringAsync();
         var transaction = JsonConvert.DeserializeObject<CreateTransactionResponse>(content);
-        _transactionId = transaction.TransactionId;
+        _transactionId = transaction.TransactionId; // assign created transaction
         Console.WriteLine(content);
+        Console.WriteLine($"\nTransaction created with Id: {transaction.TransactionId}\n");
     }
 
     return;
@@ -87,7 +88,7 @@ async Task SubmitPayment()
 
 async Task RetrievePayment()
 {
-    Console.WriteLine("Retrieve Payment information from Gateway");
+    Console.WriteLine("Retrieve Payment information from Gateway\n");
 
     // call api
     var client = new HttpClient();
@@ -100,8 +101,12 @@ async Task RetrievePayment()
     if (response.IsSuccessStatusCode)
     {
         var content = await response.Content.ReadAsStringAsync();
+        var transaction = JsonConvert.DeserializeObject<GetTransactionResponse>(content);
         Console.WriteLine(content);
+        Console.WriteLine($"\nTransaction retrieved with Id: {transaction.TransactionId}");
     }
 
+    Console.WriteLine($"\nPress any key to continue...");
+    Console.ReadLine();
     return;
 }

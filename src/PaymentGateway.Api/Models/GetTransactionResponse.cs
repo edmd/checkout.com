@@ -31,6 +31,7 @@ namespace PaymentGateway.Api.Models
         public string CardHolderName { get; set; }
         public string CardNumber {
             get {
+                // TODO: Triage ApiMappingProfile.MaskCardNumber
                 var firstDigits = _cardNumber.Substring(0, 6);
                 var lastDigits = _cardNumber.Substring(_cardNumber.Length - 4, 4);
 

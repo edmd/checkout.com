@@ -9,11 +9,12 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        var identityServerUrl = builder.Configuration.GetValue<string>("IdentityServerUrl");
 
         // Add services to the container.
         builder.Services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
         {
-            options.Authority = "https://localhost:7205";
+            options.Authority = identityServerUrl; // "https://localhost:7205";
             options.TokenValidationParameters = new TokenValidationParameters()
             {
                 ValidateAudience = false
@@ -39,7 +40,7 @@ public class Program
         var logger = app.Services.GetRequiredService<ILogger<ExceptionMiddleware>>();
         app.UseMiddleware<ExceptionMiddleware>();
 
-        app.ConfigureExceptionHandler(logger);
+        //app.ConfigureExceptionHandler(logger);
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

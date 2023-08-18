@@ -6,6 +6,7 @@ using PaymentGateway.Api.Middleware;
 
 namespace PaymentGateway.Api.Tests.Middleware
 {
+    [TestFixture]
     public class ExceptionMiddlewareTests
     {
         private Mock<ILogger<ExceptionMiddleware>> _mockLogger;

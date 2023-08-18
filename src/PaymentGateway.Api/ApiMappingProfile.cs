@@ -13,18 +13,10 @@ namespace PaymentGateway.Api
 
             CreateMap<TransactionStatusResponse, CreateTransactionResponse>();
 
-            CreateMap<TransactionResponse, GetTransactionResponse>()
+            CreateMap<TransactionResponse, GetTransactionResponse>();
                 //.ForMember(d => d.CardNumber, opt => opt.MapFrom(src => MaskCardNumber(src)))
-                .ForMember(d => d.CardNumber, opt => opt.MapFrom(src => src.CardNumber))
-                .ForMember(d => d.Cvv2, opt => opt.Ignore())
-                .ForMember(d => d.AcquirerTransactionId, opt => opt.MapFrom(src => src.AcquirerTransactionId))
-                .ForMember(d => d.Amount, opt => opt.MapFrom(src => src.Amount))
-                .ForMember(d => d.CardHolderName, opt => opt.MapFrom(src => src.CardHolderName))
-                .ForMember(d => d.CurrencyCode, opt => opt.MapFrom(src => src.CurrencyCode))
-                .ForMember(d => d.MerchantId, opt => opt.MapFrom(src => src.MerchantId))
-                .ForMember(d => d.Status, opt => opt.MapFrom(src => src.Status))
-                .ForMember(d => d.ValidFrom, opt => opt.MapFrom(src => src.ValidFrom))
-                .ForMember(d => d.ValidTo, opt => opt.MapFrom(src => src.ValidTo));
+                //.ForMember(d => d.CardNumber, opt => opt.MapFrom(src => src.CardNumber))
+                //.ForMember(d => d.Cvv2, opt => opt.Ignore());
         }
 
         private string MaskCardNumber(TransactionResponse src)

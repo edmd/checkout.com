@@ -9,7 +9,6 @@ using System.Text;
 
 namespace PaymentGateway.Api.Integration.Tests
 {
-    // TODO: Determine instantiation failure on Gateway
     [TestFixture]
     public class PaymentsControllerTests
     {
