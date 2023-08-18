@@ -14,7 +14,7 @@ The API provides a reduced subset of possible endpoints that a Payment Gateway m
 	separation of concerns between the boundaries; from a top-down approach a tier only has access to the 
 	tier immediately proceeding it.
 
-	Simulator --> Payment Gateway API --> Services --> DataStore
+	Simulator --> Payment Gateway API --> Services --> Repository --> DataStore
 									 
  - Security:
 	

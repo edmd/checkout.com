@@ -2,6 +2,7 @@ using Microsoft.IdentityModel.Tokens;
 using PaymentGateway.Api.Middleware;
 using PaymentGateway.Data.IoC;
 using Infrastructure.Transaction.Services;
+using PaymentGateway.Api.Config;
 
 namespace PaymentGateway.Api;
 public class Program
@@ -31,6 +32,7 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.ConfigureSwaggerDocumentation();
 
         builder.Services.AddMediatR(cfg =>
              cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
