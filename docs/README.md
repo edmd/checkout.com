@@ -15,9 +15,12 @@ The API provides a reduced subset of possible endpoints that a Payment Gateway m
 	tier immediately proceeding it.
 
 	Simulator
-        |______>Payment Gateway API
-                         |______>Services
-                                     |______>DataStore
+        |______>
+                 Payment Gateway API
+                         |______>
+                                 Services
+                                     |______>
+                                             DataStore
 									 
  - Security:
 	
@@ -39,6 +42,11 @@ Models have been simplified by keeping the same property names to keep boilerpla
 In a Production Environment, the Gateway would have agency over settlement. In the context of this 
 Application, the Payment Gateway has not been configured to determine which Acquirer to use for a 
 given corridor. We are simply determining the Payment Processor by the Card Details supplied.
+
+# Result
+
+![image](https://github.com/edmd/payment-gateway/assets/20398469/d8f6f457-acc8-4dd9-9f11-90166dad3a92)
+
 
 # Excluded (due to time constraints) but desirable for future iterations
 
