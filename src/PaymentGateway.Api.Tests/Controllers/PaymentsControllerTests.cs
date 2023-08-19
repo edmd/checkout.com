@@ -4,7 +4,7 @@ using Infrastructure.Transaction.Services.Models;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using PaymentGateway.Api.Controllers;
 using PaymentGateway.Api.Models;
@@ -16,6 +16,7 @@ namespace PaymentGateway.Api.Tests.Controllers
     {
         private readonly PaymentsController _sut;
         private readonly IMapper _mapper;
+        private readonly Mock<ILoggerFactory> _mockfactory;
         private readonly Mock<IMediator> _mediatorMock;
         private readonly Mock<IHttpContextAccessor> _accessorMock;
 
@@ -23,6 +24,8 @@ namespace PaymentGateway.Api.Tests.Controllers
         {
             _mapper = new MapperConfiguration(cfg => { cfg.AddProfile<ApiMappingProfile>(); })
                 .CreateMapper();
+
+            _mockfactory = new Mock<ILoggerFactory>();
 
             _mediatorMock = new Mock<IMediator>();
             _mediatorMock.Setup(m => m.Send(It.IsAny<CreateTransactionRequest>(), It.IsAny<CancellationToken>()))
@@ -36,7 +39,7 @@ namespace PaymentGateway.Api.Tests.Controllers
             context.Request.Path = PathString.Empty;
             _accessorMock.Setup(_ => _.HttpContext).Returns(context);
 
-            _sut = new PaymentsController(_mapper, _mediatorMock.Object, _accessorMock.Object) { };
+            _sut = new PaymentsController(_mockfactory.Object, _mapper, _mediatorMock.Object, _accessorMock.Object) { };
         }
 
         [Test]
@@ -54,15 +57,18 @@ namespace PaymentGateway.Api.Tests.Controllers
                 It.IsAny<CreateTransactionRequest>(), 
                 It.IsAny<CancellationToken>()), Times.Once());
 
-            result.Should().BeAssignableTo<CreatedResult>();
-            var createdResult = result as CreatedResult;
-            createdResult.Value.Should().BeAssignableTo<CreateTransactionResponse>();
-            var value = createdResult.Value as CreateTransactionResponse;
-            value.TransactionId.Should().NotBeEmpty();
+            Assert.Multiple(() =>
+            {
+                result.Should().BeAssignableTo<CreatedResult>();
+                var createdResult = result as CreatedResult;
+                createdResult?.Value.Should().BeAssignableTo<CreateTransactionResponse>();
+                var value = createdResult?.Value as CreateTransactionResponse;
+                value?.TransactionId.Should().NotBeEmpty();
+            });
         }
 
-        public async Task Should_create_transaction_unsuccessfully() { }
-        public async Task Should_get_transaction_successfully() { }
-        public async Task Should_get_transaction_unsuccessfully() { }
+        //public async Task Should_create_transaction_unsuccessfully() { }
+        //public async Task Should_get_transaction_successfully() { }
+        //public async Task Should_get_transaction_unsuccessfully() { }
     }
 }

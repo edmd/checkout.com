@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Infrastructure.Transaction.Services.Worker;
+using Infrastructure.Transaction.Services.Workers;
 
 namespace Infrastructure.Transaction.Services
 {

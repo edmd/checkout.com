@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using IdentityServer;
 
 namespace PaymentGateway.Api.Integration.Tests
 {
@@ -15,7 +14,6 @@ namespace PaymentGateway.Api.Integration.Tests
             builder.ConfigureLogging((WebHostBuilderContext context, ILoggingBuilder loggingBuilder) =>
             {
                 loggingBuilder.ClearProviders();
-                loggingBuilder.AddConsole(options => options.IncludeScopes = true);
             });
         }
 

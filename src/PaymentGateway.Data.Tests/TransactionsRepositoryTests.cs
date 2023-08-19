@@ -46,17 +46,20 @@ namespace PaymentGateway.Data.Tests
             var result = await _transactionsRepository.GetTransaction(_transaction.TransactionId);
 
             // Assert
-            result.AcquirerTransactionId.Should().Be(_transaction.AcquirerTransactionId);
-            result.Amount.Should().Be(_transaction.Amount);
-            result.CardHolderName.Should().Be(_transaction.CardHolderName);
-            result.CardNumber.Should().Be(_transaction.CardNumber);
-            result.CurrencyCode.Should().Be(_transaction.CurrencyCode);
-            result.Cvv2.Should().Be(_transaction.Cvv2);
-            result.MerchantId.Should().Be(_transaction.MerchantId);
-            result.Status.Should().Be(_transaction.Status);
-            result.TransactionId.Should().Be(_transaction.TransactionId);
-            result.ValidFrom.Should().Be(_transaction.ValidFrom);
-            result.ValidTo.Should().Be(_transaction.ValidTo);
+            Assert.Multiple(() =>
+            {
+                result?.AcquirerTransactionId.Should().Be(_transaction.AcquirerTransactionId);
+                result?.Amount.Should().Be(_transaction.Amount);
+                result?.CardHolderName.Should().Be(_transaction.CardHolderName);
+                result?.CardNumber.Should().Be(_transaction.CardNumber);
+                result?.CurrencyCode.Should().Be(_transaction.CurrencyCode);
+                result?.Cvv2.Should().Be(_transaction.Cvv2);
+                result? .MerchantId.Should().Be(_transaction.MerchantId);
+                result?.Status.Should().Be(_transaction.Status);
+                result?.TransactionId.Should().Be(_transaction.TransactionId);
+                result?.ValidFrom.Should().Be(_transaction.ValidFrom);
+                result?.ValidTo.Should().Be(_transaction.ValidTo);
+            });
         }
     }
 }

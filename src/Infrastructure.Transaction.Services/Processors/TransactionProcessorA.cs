@@ -5,24 +5,21 @@ namespace Infrastructure.Transaction.Services.Processors
 {
     public class TransactionProcessorA : ITransactionProcessor
     {
-        public async Task<List<ValidationResult>> ValidateTransaction(TransactionRequest request)
+        public async Task<List<ValidationResult>>? ValidateTransaction(TransactionRequest request)
         {
-            // Processing...
-
+            await Task.Delay(1); // arbitrary processing
             return new List<ValidationResult>() { new ValidationResult("A is down") };
         }
 
-        public async Task<TransactionStatusResponse> ProcessTransaction(TransactionRequest request)
+        public async Task<TransactionStatusResponse>? ProcessTransaction(TransactionRequest request)
         {
-            // Processing...
-
-            return new TransactionStatusResponse(null, Guid.NewGuid(), TransactionStatus.Failed) { };
+            await Task.Delay(1); // arbitrary processing
+            return new TransactionStatusResponse(Guid.NewGuid(), Guid.NewGuid(), TransactionStatus.Failed) { };
         }
 
-        public async Task<TransactionStatusResponse> RetrieveTransaction(Guid transactionId)
+        public async Task<TransactionStatusResponse>? RetrieveTransaction(Guid transactionId)
         {
-            // Retrieve transaction...
-
+            await Task.Delay(1); // arbitrary processing
             return new TransactionStatusResponse(transactionId, Guid.NewGuid(), TransactionStatus.Failed);
         }
     }

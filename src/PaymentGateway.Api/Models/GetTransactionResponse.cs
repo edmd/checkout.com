@@ -6,7 +6,6 @@ namespace PaymentGateway.Api.Models
     public class GetTransactionResponse
     {
         private string _cardNumber;
-        public GetTransactionResponse() { }
 
         public GetTransactionResponse(Guid transactionId, Guid acquirerTransactionId, int merchantId, 
             string cardHolderName, string cardNumber, string? validFrom, string validTo, string cvv2, 

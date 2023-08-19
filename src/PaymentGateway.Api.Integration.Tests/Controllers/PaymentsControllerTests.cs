@@ -33,7 +33,7 @@ namespace PaymentGateway.Api.Integration.Tests
             var payment = new CreateTransactionRequest(123, "John Smith", "0000222233334444", "02/23", "02/28", "123", 99.99M, "GBP");
 
             // Act
-            var disco = await _client2.GetDiscoveryDocumentAsync(_client2.BaseAddress.AbsoluteUri);
+            var disco = await _client2.GetDiscoveryDocumentAsync(_client2?.BaseAddress?.AbsoluteUri);
 
             // request token
             var jwtResponse = await _client2.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
@@ -57,16 +57,19 @@ namespace PaymentGateway.Api.Integration.Tests
             var responseModel = JsonConvert.DeserializeObject<CreateTransactionResponse>(
                 response.Content.ReadAsStringAsync().Result);
 
-            responseModel.Should().NotBeNull();
-            responseModel.Should().BeOfType<CreateTransactionResponse>();
-            responseModel.AcquirerTransactionId.Should().NotBeEmpty();
-            responseModel.Status.Should().Be(TransactionStatus.Accepted);
-            responseModel.TransactionId.Should().NotBeEmpty();
+            Assert.Multiple(() =>
+            {
+                responseModel.Should().NotBeNull();
+                responseModel.Should().BeOfType<CreateTransactionResponse>();
+                responseModel?.AcquirerTransactionId.Should().NotBeEmpty();
+                responseModel?.Status.Should().Be(TransactionStatus.Accepted);
+                responseModel?.TransactionId.Should().NotBeEmpty();
+            });
         }
 
-        public async Task Should_create_transaction_unsuccessfully() { }
-        public async Task Should_create_transaction_unauthorised() { }
-        public async Task Should_get_transaction_successfully() { }
-        public async Task Should_get_transaction_unsuccessfully() { }
+        //public async Task Should_create_transaction_unsuccessfully() { }
+        //public async Task Should_create_transaction_unauthorised() { }
+        //public async Task Should_get_transaction_successfully() { }
+        //public async Task Should_get_transaction_unsuccessfully() { }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
+using Infrastructure.Transaction.Services.Exceptions;
 using Infrastructure.Transaction.Services.Models;
 using Infrastructure.Transaction.Services.Processors;
 using PaymentGateway.Data;
 
-namespace Infrastructure.Transaction.Services.Worker
+namespace Infrastructure.Transaction.Services.Workers
 {
     public class TransactionWorker : ITransactionWorker
     {
@@ -18,7 +19,7 @@ namespace Infrastructure.Transaction.Services.Worker
 
         public async Task<TransactionStatusResponse> Create(TransactionRequest request)
         {
-            // Typically we would allow the system administrator to configure which Acquirer 
+            // TODO: Typically we would allow the system administrator to configure which Acquirer 
             // serves which corridors to take advantage of favourable rates, SLAs,
             // transaction load, clearing times etc;
             //
@@ -27,7 +28,7 @@ namespace Infrastructure.Transaction.Services.Worker
 
             var response = await processor.ProcessTransaction(request);
 
-            if (response.Status == TransactionStatus.Accepted)
+            if (response?.Status == TransactionStatus.Accepted)
             {
                 // Prepare persistance
                 var transaction = _mapper.Map<PaymentGateway.Data.Persistence.Entities.Transaction>((response, request));
@@ -38,9 +39,10 @@ namespace Infrastructure.Transaction.Services.Worker
                     response.TransactionId = transaction.TransactionId;
                     return response;
                 }
+                throw new TransactionFailedException($"Transaction not persisted; {transaction}");
             }
 
-            throw new Exception("CustomTransactionFailedException");
+            throw new TransactionFailedException("Transaction rejected by Acquirer");
         }
 
         public async Task<TransactionResponse> Get(Guid id)
@@ -53,13 +55,18 @@ namespace Infrastructure.Transaction.Services.Worker
 
                 var response = await processor.RetrieveTransaction(transaction.TransactionId);
 
-                // Transaction payout status updating should be part of a separate asynchronous queue
-                transaction.Status = (int)response.Status;
+                if (response != null)
+                {
+                    // Transaction payout status updating should be part of a separate asynchronous queue
+                    transaction.Status = (int)response.Status;
 
-                return _mapper.Map<TransactionResponse>(transaction);
+                    return _mapper.Map<TransactionResponse>(transaction);
+                }
+
+                throw new TransactionNotFoundException("Transaction not found in Acquirer");
             }
 
-            throw new Exception("CustomTransactionNotFoundException");
+            throw new TransactionNotFoundException("Transaction not found in datastore");
         }
 
         private ITransactionProcessor InstantiateProcessor(string cardNumber)

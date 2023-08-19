@@ -1,4 +1,4 @@
-﻿using Infrastructure.Transaction.Services.Worker;
+﻿using Infrastructure.Transaction.Services.Workers;
 using Microsoft.OpenApi.Models;
 
 namespace PaymentGateway.Api.Config

@@ -39,9 +39,10 @@ public class Program
 
         var app = builder.Build();
 
-        var logger = app.Services.GetRequiredService<ILogger<ExceptionMiddleware>>();
+
         app.UseMiddleware<ExceptionMiddleware>();
 
+        //var logger = app.Services.GetRequiredService<ILogger<ExceptionMiddleware>>();
         //app.ConfigureExceptionHandler(logger);
 
         // Configure the HTTP request pipeline.

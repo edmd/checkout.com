@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Infrastructure.Transaction.Services.Models;
-using Infrastructure.Transaction.Services.Worker;
+using Infrastructure.Transaction.Services.Workers;
 using MediatR;
 using PaymentGateway.Api.Models;
 

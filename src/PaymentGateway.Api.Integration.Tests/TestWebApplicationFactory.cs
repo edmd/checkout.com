@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 
 namespace PaymentGateway.Api.Integration.Tests
 {
-    // TODO: Instantiate TestIdWebApplicationFactory on port 7205 to fix this
+    // TODO: Instantiate TestIdWebApplicationFactory on port 7205 or fix MockJwtTokens 
     public class TestWebApplicationFactory : WebApplicationFactory<PaymentGateway.Api.Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -25,7 +25,6 @@ namespace PaymentGateway.Api.Integration.Tests
             builder.ConfigureLogging((WebHostBuilderContext context, ILoggingBuilder loggingBuilder) =>
             {
                 loggingBuilder.ClearProviders();
-                loggingBuilder.AddConsole(options => options.IncludeScopes = true);
             });
         }
 

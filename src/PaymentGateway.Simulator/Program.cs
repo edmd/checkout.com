@@ -5,8 +5,8 @@ using PaymentGateway.Api.Models;
 using System.Net.Http.Headers;
 using System.Text;
 
-TokenResponse _jwtToken = null;
-Guid _transactionId = Guid.NewGuid();
+TokenResponse? _jwtToken = null;
+Guid? _transactionId = Guid.NewGuid();
 
 Console.WriteLine("PaymentGateway Simulator\n");
 
@@ -51,7 +51,6 @@ async Task FetchJwtToken()
     }
 
     Console.WriteLine($"JWT Token created: \n{jwtResponse.Json}\n");
-    //Console.WriteLine(jwtResponse.AccessToken);
 
     _jwtToken = jwtResponse;
 
@@ -65,7 +64,7 @@ async Task SubmitPayment()
 
     // call api
     var client = new HttpClient();
-    client.SetBearerToken(_jwtToken.AccessToken);
+    client.SetBearerToken(_jwtToken?.AccessToken);
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
     var payment = new CreateTransactionRequest(123, "John Smith", "0000222233334444", "02/23", "02/28", "123", 99.99M, "GBP");
@@ -77,10 +76,10 @@ async Task SubmitPayment()
     if (response.IsSuccessStatusCode)
     {
         var content = await response.Content.ReadAsStringAsync();
-        var transaction = JsonConvert.DeserializeObject<CreateTransactionResponse>(content);
-        _transactionId = transaction.TransactionId; // assign created transaction
+        CreateTransactionResponse? transaction = JsonConvert.DeserializeObject<CreateTransactionResponse>(content);
+        _transactionId = transaction?.TransactionId; // assign created transaction id
         Console.WriteLine(content);
-        Console.WriteLine($"\nTransaction created with Id: {transaction.TransactionId}\n");
+        Console.WriteLine($"\nTransaction created with Id: {transaction?.TransactionId}\n");
     }
 
     return;
@@ -92,7 +91,7 @@ async Task RetrievePayment()
 
     // call api
     var client = new HttpClient();
-    client.SetBearerToken(_jwtToken.AccessToken);
+    client.SetBearerToken(_jwtToken?.AccessToken);
 
     var response = await client.GetAsync($"https://localhost:7005/api/payments/{_transactionId}");
 
@@ -103,7 +102,7 @@ async Task RetrievePayment()
         var content = await response.Content.ReadAsStringAsync();
         var transaction = JsonConvert.DeserializeObject<GetTransactionResponse>(content);
         Console.WriteLine(content);
-        Console.WriteLine($"\nTransaction retrieved with Id: {transaction.TransactionId}");
+        Console.WriteLine($"\nTransaction retrieved with Id: {transaction?.TransactionId}");
     }
 
     Console.WriteLine($"\nPress any key to continue...");

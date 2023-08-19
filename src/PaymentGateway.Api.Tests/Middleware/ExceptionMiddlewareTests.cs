@@ -9,12 +9,12 @@ namespace PaymentGateway.Api.Tests.Middleware
     [TestFixture]
     public class ExceptionMiddlewareTests
     {
-        private Mock<ILogger<ExceptionMiddleware>> _mockLogger;
+        private Mock<ILoggerFactory> _mockFactory;
 
         [SetUp]
         public void BeforeEach()
         {
-            _mockLogger = new Mock<ILogger<ExceptionMiddleware>>();
+            _mockFactory = new Mock<ILoggerFactory>();
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace PaymentGateway.Api.Tests.Middleware
                 return Task.CompletedTask;
             });
 
-            var middleware = new ExceptionMiddleware(requestDelegate, _mockLogger.Object);
+            var middleware = new ExceptionMiddleware(requestDelegate, _mockFactory.Object);
 
             // Test
             await middleware.InvokeAsync(context);
@@ -54,7 +54,7 @@ namespace PaymentGateway.Api.Tests.Middleware
                 return Task.FromException(error);
             });
 
-            var middleware = new ExceptionMiddleware(requestDelegate, _mockLogger.Object);
+            var middleware = new ExceptionMiddleware(requestDelegate, _mockFactory.Object);
 
             // Test & Analysis
             Assert.That(

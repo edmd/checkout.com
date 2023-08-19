@@ -1,6 +1,6 @@
 ﻿using Infrastructure.Transaction.Services.Models;
 
-namespace Infrastructure.Transaction.Services.Worker
+namespace Infrastructure.Transaction.Services.Workers
 {
     public interface ITransactionWorker
     {

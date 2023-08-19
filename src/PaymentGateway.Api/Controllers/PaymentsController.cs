@@ -13,13 +13,15 @@ namespace PaymentGateway.Api.Controllers
     [Authorize]
     public class PaymentsController : ApiControllerBase
     {
+        private readonly ILogger _logger;
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PaymentsController(IMapper mapper, IMediator mediator, 
+        public PaymentsController(ILoggerFactory factory, IMapper mapper, IMediator mediator, 
             IHttpContextAccessor httpContextAccessor)
         {
+            _logger = factory.CreateLogger<PaymentsController>();
             _mapper = mapper;
             _mediator = mediator;
             _httpContextAccessor = httpContextAccessor;
@@ -34,9 +36,12 @@ namespace PaymentGateway.Api.Controllers
                 return BadRequest();
             }
 
-            var result = await _mediator.Send(request);
+            var response = await _mediator.Send(request);
 
-            return Created($"{_httpContextAccessor.HttpContext?.Request.Scheme}://{_httpContextAccessor.HttpContext?.Request.Host}{_httpContextAccessor.HttpContext?.Request.Path}/{result}", result);
+            _logger.LogInformation(response.ToString());
+
+            return Created($"{_httpContextAccessor.HttpContext?.Request.Scheme}://{_httpContextAccessor.HttpContext?.Request.Host}{_httpContextAccessor.HttpContext?.Request.Path}/{response}", 
+                response);
         }
 
         [HttpGet("{transactionId}")]
@@ -44,10 +49,11 @@ namespace PaymentGateway.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTransactionById(Guid transactionId)
         {
-            var response = await _mediator.Send(new GetTransactionRequest(transactionId));
+            var response = _mapper.Map<GetTransactionResponse>(
+                await _mediator.Send(new GetTransactionRequest(transactionId)));
 
-            var transactionResponse = _mapper.Map<GetTransactionResponse>(response);
-            return Ok(transactionResponse);
+            _logger.LogInformation(response.ToString());
+            return Ok(response);
         }
     }
 }
