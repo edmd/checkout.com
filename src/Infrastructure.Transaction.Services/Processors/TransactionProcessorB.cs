@@ -20,7 +20,7 @@ namespace Infrastructure.Transaction.Services.Processors
         public async Task<TransactionStatusResponse>? RetrieveTransaction(Guid transactionId)
         {
             await Task.Delay(1); // arbitrary processing
-            return new TransactionStatusResponse(transactionId, Guid.NewGuid(), TransactionStatus.Success);
+            return new TransactionStatusResponse(transactionId, Guid.Empty, TransactionStatus.Success);
         }
     }
 }

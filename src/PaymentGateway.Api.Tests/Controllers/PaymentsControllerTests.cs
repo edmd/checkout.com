@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using PaymentGateway.Api.Controllers;
 using PaymentGateway.Api.Models;
@@ -16,7 +17,6 @@ namespace PaymentGateway.Api.Tests.Controllers
     {
         private readonly PaymentsController _sut;
         private readonly IMapper _mapper;
-        private readonly Mock<ILoggerFactory> _mockfactory;
         private readonly Mock<IMediator> _mediatorMock;
         private readonly Mock<IHttpContextAccessor> _accessorMock;
 
@@ -24,8 +24,6 @@ namespace PaymentGateway.Api.Tests.Controllers
         {
             _mapper = new MapperConfiguration(cfg => { cfg.AddProfile<ApiMappingProfile>(); })
                 .CreateMapper();
-
-            _mockfactory = new Mock<ILoggerFactory>();
 
             _mediatorMock = new Mock<IMediator>();
             _mediatorMock.Setup(m => m.Send(It.IsAny<CreateTransactionRequest>(), It.IsAny<CancellationToken>()))
@@ -39,7 +37,7 @@ namespace PaymentGateway.Api.Tests.Controllers
             context.Request.Path = PathString.Empty;
             _accessorMock.Setup(_ => _.HttpContext).Returns(context);
 
-            _sut = new PaymentsController(_mockfactory.Object, _mapper, _mediatorMock.Object, _accessorMock.Object) { };
+            _sut = new PaymentsController(NullLogger<PaymentsController>.Instance, _mapper, _mediatorMock.Object, _accessorMock.Object) { };
         }
 
         [Test]

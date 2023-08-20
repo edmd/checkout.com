@@ -18,10 +18,10 @@ namespace PaymentGateway.Api.Controllers
         private readonly IMediator _mediator;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PaymentsController(ILoggerFactory factory, IMapper mapper, IMediator mediator, 
+        public PaymentsController(ILogger<PaymentsController> logger, IMapper mapper, IMediator mediator, 
             IHttpContextAccessor httpContextAccessor)
         {
-            _logger = factory.CreateLogger<PaymentsController>();
+            _logger = logger;
             _mapper = mapper;
             _mediator = mediator;
             _httpContextAccessor = httpContextAccessor;

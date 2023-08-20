@@ -1,22 +1,14 @@
-﻿
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using PaymentGateway.Api.Middleware;
 
 namespace PaymentGateway.Api.Tests.Middleware
 {
+    //https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.abstractions.nulllogger-1
     [TestFixture]
     public class ExceptionMiddlewareTests
     {
-        private Mock<ILoggerFactory> _mockFactory;
-
-        [SetUp]
-        public void BeforeEach()
-        {
-            _mockFactory = new Mock<ILoggerFactory>();
-        }
-
         [Test]
         public async Task InvokeAsync_ShouldInvokeNextItemInMiddlewarePipeline()
         {
@@ -31,7 +23,8 @@ namespace PaymentGateway.Api.Tests.Middleware
                 return Task.CompletedTask;
             });
 
-            var middleware = new ExceptionMiddleware(requestDelegate, _mockFactory.Object);
+            var middleware = new ExceptionMiddleware(
+                requestDelegate, NullLogger<ExceptionMiddleware>.Instance);
 
             // Test
             await middleware.InvokeAsync(context);
@@ -54,7 +47,8 @@ namespace PaymentGateway.Api.Tests.Middleware
                 return Task.FromException(error);
             });
 
-            var middleware = new ExceptionMiddleware(requestDelegate, _mockFactory.Object);
+            var middleware = new ExceptionMiddleware(
+                requestDelegate, NullLogger<ExceptionMiddleware>.Instance);
 
             // Test & Analysis
             Assert.That(

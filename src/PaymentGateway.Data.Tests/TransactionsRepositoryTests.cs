@@ -33,7 +33,8 @@ namespace PaymentGateway.Data.Tests
             var result = await _transactionsRepository.AddTransaction(_transaction);
 
             // Assert
-            result.Should().Be(1);
+            result.Should().NotBeEmpty();
+            Assert.IsInstanceOf(typeof(Guid), result);
         }
 
         [Test]

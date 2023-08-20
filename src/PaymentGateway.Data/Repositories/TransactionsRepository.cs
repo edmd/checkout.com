@@ -13,13 +13,19 @@ namespace PaymentGateway.Data
             _dbContext = dbContext;
         }
 
-        public async Task<int> AddTransaction(Transaction transaction)
+        public async Task<Guid> AddTransaction(Transaction transaction)
         {
+            transaction.TransactionId = Guid.NewGuid();
             _dbContext.Transactions.Add(transaction);
 
             int affectedRecords = await _dbContext.SaveChangesAsync();
 
-            return affectedRecords;
+            if(affectedRecords > 0)
+            {
+                return transaction.TransactionId;
+            }
+
+            return Guid.Empty;
         }
 
         public async Task<Transaction?> GetTransaction(Guid transactionId)

@@ -32,16 +32,20 @@ namespace Infrastructure.Transaction.Services.Workers
             {
                 // Prepare persistance
                 var transaction = _mapper.Map<PaymentGateway.Data.Persistence.Entities.Transaction>((response, request));
-                var recordsAffected = await _repository.AddTransaction(transaction);
+                var transactionId = await _repository.AddTransaction(transaction);
 
-                if(recordsAffected > 0)
+                if(transactionId != Guid.Empty)
                 {
-                    response.TransactionId = transaction.TransactionId;
+                    response.TransactionId = transactionId;
                     return response;
                 }
                 throw new TransactionFailedException($"Transaction not persisted; {transaction}");
             }
 
+            // TODO: We need much more granularity here in terms of Error Message handling to
+            // discern why the Acquirer rejected or failed to process the transaction
+            // For purposes of this Demo, we're will use a blanket exception
+            // We can optionally put the Error messages in a Resource.resx file
             throw new TransactionFailedException("Transaction rejected by Acquirer");
         }
 
