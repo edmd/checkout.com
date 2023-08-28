@@ -1,8 +1,8 @@
+using Infrastructure.Transaction.Services;
 using Microsoft.IdentityModel.Tokens;
+using PaymentGateway.Api.Config;
 using PaymentGateway.Api.Middleware;
 using PaymentGateway.Data.IoC;
-using Infrastructure.Transaction.Services;
-using PaymentGateway.Api.Config;
 
 namespace PaymentGateway.Api;
 public class Program
@@ -39,11 +39,7 @@ public class Program
 
         var app = builder.Build();
 
-
         app.UseMiddleware<ExceptionMiddleware>();
-
-        //var logger = app.Services.GetRequiredService<ILogger<ExceptionMiddleware>>();
-        //app.ConfigureExceptionHandler(logger);
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

@@ -13,13 +13,13 @@ namespace Infrastructure.Transaction.Services.Processors
 
         public async Task<TransactionStatusResponse>? ProcessTransaction(TransactionRequest request)
         {
-            await Task.Delay(1); // arbitrary processing
+            await Task.Delay(1);
             return new TransactionStatusResponse(Guid.NewGuid(), Guid.NewGuid(), TransactionStatus.Accepted) { };
         }
 
         public async Task<TransactionStatusResponse>? RetrieveTransaction(Guid transactionId)
         {
-            await Task.Delay(1); // arbitrary processing
+            await Task.Delay(1);
             return new TransactionStatusResponse(transactionId, Guid.Empty, TransactionStatus.Success);
         }
     }

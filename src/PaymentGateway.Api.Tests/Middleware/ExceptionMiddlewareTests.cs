@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Infrastructure.Transaction.Services.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using PaymentGateway.Api.Middleware;
@@ -40,6 +41,54 @@ namespace PaymentGateway.Api.Tests.Middleware
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Path = $"/api/payments";
             var error = new Exception();
+
+            // Setup
+            var requestDelegate = new RequestDelegate(context =>
+            {
+                return Task.FromException(error);
+            });
+
+            var middleware = new ExceptionMiddleware(
+                requestDelegate, NullLogger<ExceptionMiddleware>.Instance);
+
+            // Test & Analysis
+            Assert.That(
+                async () => await middleware.InvokeAsync(httpContext),
+                Throws.Nothing
+            );
+        }
+
+        [Test]
+        public void InvokeAsync_ShouldHandleTransactionNotFoundException()
+        {
+            // Data
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Path = $"/api/payments";
+            var error = new TransactionNotFoundException("Exception");
+
+            // Setup
+            var requestDelegate = new RequestDelegate(context =>
+            {
+                return Task.FromException(error);
+            });
+
+            var middleware = new ExceptionMiddleware(
+                requestDelegate, NullLogger<ExceptionMiddleware>.Instance);
+
+            // Test & Analysis
+            Assert.That(
+                async () => await middleware.InvokeAsync(httpContext),
+                Throws.Nothing
+            );
+        }
+
+        [Test]
+        public void InvokeAsync_ShouldHandleTransactionFailedException()
+        {
+            // Data
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Path = $"/api/payments";
+            var error = new TransactionFailedException("Exception");
 
             // Setup
             var requestDelegate = new RequestDelegate(context =>

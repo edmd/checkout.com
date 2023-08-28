@@ -83,6 +83,11 @@ In a Production Environment, the Gateway would have agency over settlement. In t
 Application, the Payment Gateway has not been configured to determine which Acquirer to use for a 
 given corridor. We are simply determining the Payment Processor by the Card Details supplied.
 
+i.e. Given a Card Number submitted to the Gateway, will determine which Acquirer to use:
+	1. Card Numbers beginning with: 1111 - Simulated Acquirer offline
+	2. Card Numbers beginning with: 1234 - Card fails Acquirer validation
+	3. Any other Card Numbers: - Successful transaction creation
+
 # Excluded (due to time constraints) but desirable for future iterations
 
 1. Improved logging formatting and richer information, including Correlation Ids
@@ -93,7 +98,7 @@ given corridor. We are simply determining the Payment Processor by the Card Deta
  	  or temporality should be applied to the tables storing transactional data:
 	  https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables
 6. The creation and application of Code First migration scripts; although this is not always possible and 
-   a database first approach is the only choice
+   a database first approach is the only choice in most brownfield cases
 7. You can optionally search the project on TODO to view further items and explanation notes
 
 # Result
