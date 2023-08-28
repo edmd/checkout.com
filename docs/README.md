@@ -60,7 +60,8 @@ The API provides a reduced subset of possible endpoints that a Payment Gateway m
 	    C:\sln\src\IdentityServer>dotnet run Identity
 	3.	cd "C:\sln\src\PaymentGateway.API"
 	    C:\sln\src\PaymentGateway.API>dotnet run PaymentGateway.API
-	4.	cd "C:\sln\src\PaymentGateway.Simulator"						    C:\sln\src\PaymentGateway.API>dotnet run PaymentGateway.Simulator
+	4.	cd "C:\sln\src\PaymentGateway.Simulator"					
+	    C:\sln\src\PaymentGateway.API>dotnet run PaymentGateway.Simulator
 	
 - Production:
     
@@ -103,4 +104,8 @@ i.e. Given a Card Number submitted to the Gateway, will determine which Acquirer
 
 # Result
 
-![image](https://github.com/edmd/payment-gateway/assets/20398469/d8f6f457-acc8-4dd9-9f11-90166dad3a92)
+![image](https://github.com/edmd/payment-gateway/assets/20398469/af6c5f2c-1669-47e9-b61e-5b6ab9c5ebf9)
+
+![image](https://github.com/edmd/payment-gateway/assets/20398469/ca9d8cd4-e48e-47e0-8c9d-440d18b14b55)
+
+
