@@ -47,6 +47,7 @@ namespace PaymentGateway.Api.Controllers
         [HttpGet("{transactionId}")]
         [Produces(typeof(GetTransactionResponse))]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTransactionById(Guid transactionId)
         {
             var response = _mapper.Map<GetTransactionResponse>(

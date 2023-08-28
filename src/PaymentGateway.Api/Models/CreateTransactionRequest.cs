@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using System.ComponentModel.DataAnnotations;
 
 namespace PaymentGateway.Api.Models
 {
@@ -17,13 +18,27 @@ namespace PaymentGateway.Api.Models
             CurrencyCode = currencyCode;
         }
 
+        [Required]
         public int MerchantId { get; set; }
+
+        [Required]
         public string CardHolderName { get; set; }
+
+        [Required]
         public string CardNumber { get; set; }
+
         public string? ValidFrom { get; set; }
+
+        [Required]
         public string ValidTo { get; set; }
+
+        [Required]
         public string Cvv2 { get; set; }
+
+        [Required]
         public decimal Amount { get; set; }
+
+        [Required]
         public string CurrencyCode { get; set; }
     }
 }

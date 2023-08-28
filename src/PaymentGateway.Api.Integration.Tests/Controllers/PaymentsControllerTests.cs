@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using IdentityModel.Client;
 using Infrastructure.Transaction.Services.Models;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using PaymentGateway.Api.Models;
 using System.Net;
@@ -13,17 +13,12 @@ namespace PaymentGateway.Api.Integration.Tests
     public class PaymentsControllerTests
     {
         private TestWebApplicationFactory _factory;
-        private TestIdWebApplicationFactory _factory2;
         private HttpClient _client;
-        private HttpClient _client2;
 
         public PaymentsControllerTests()
         {
             _factory = new TestWebApplicationFactory();
             _client = _factory.CreateClient();
-
-            _factory2 = new TestIdWebApplicationFactory();
-            _client2 = _factory2.CreateClient();
         }
 
         [Test]
@@ -33,19 +28,8 @@ namespace PaymentGateway.Api.Integration.Tests
             var payment = new CreateTransactionRequest(123, "John Smith", "0000222233334444", "02/23", "02/28", "123", 99.99M, "GBP");
 
             // Act
-            var disco = await _client2.GetDiscoveryDocumentAsync(_client2?.BaseAddress?.AbsoluteUri);
-
-            // request token
-            var jwtResponse = await _client2.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = disco.TokenEndpoint,
-                ClientId = "merchant",
-                ClientSecret = "secret",
-                Scope = "PaymentGateway.Api"
-            });
-
-            _client.SetBearerToken(jwtResponse.AccessToken);
-            //_client.SetBearerToken("eyJhbGciOiJSUzI1NiIsImtpZCI6IkRBNzFCRDM1NTJGREJGMEFDQ0E4QkMyMERERDU0MTFCIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2OTIzNTIzMjQsImV4cCI6MTY5MjM1NTkyNCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzIwNSIsImNsaWVudF9pZCI6Im1lcmNoYW50IiwianRpIjoiNERBMjA1OUM2MjI3N0QwNjFGOTBCMUJFNjNFNzE1MTAiLCJpYXQiOjE2OTIzNTIzMjQsInNjb3BlIjpbIlBheW1lbnRHYXRld2F5LkFwaSJdfQ.0RzTOelMZ4penlAKfLQ3JRNMLiTVOrQW6hffDOd-28jIejTKSQPL1lIcvhCwyVd5jEioWV9LxqLmbeGwwyVhKBpd4FMg2WdfFXlQXlwUUeWBwGWIWgyZbOuP5SEFaqw-FbeqgBsRiVagbS7PfK1UC7OM62IEFn7L4FFISqBp-8hEv6zvG62rl7AssHzrcUYVq-Wnl13LLRp7jCkqdRG5bmpCudsFbdiNh99VyEZ_T2HrGUKOY8-MYYULH_9By9lqoQQx6zMgNUyYOqeOv52ZkdXt0zZy6ZRhrCws5fKqZpo6ypUSWzMQVTJ7iXPgk6KnPdv_1kjgrFYkS9I7zwb1vg");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                $"Bearer", $"{MockJwtTokens.GenerateJwtToken(MockJwtTokens.PaymentGatewayApiClaims)}");
 
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             var stringContent = new StringContent(JsonConvert.SerializeObject(payment), Encoding.UTF8, "application/json");
@@ -67,9 +51,152 @@ namespace PaymentGateway.Api.Integration.Tests
             });
         }
 
-        //public async Task Should_create_transaction_unsuccessfully() { }
-        //public async Task Should_create_transaction_unauthorised() { }
-        //public async Task Should_get_transaction_successfully() { }
-        //public async Task Should_get_transaction_unsuccessfully() { }
+        [Test]
+        public async Task Should_create_transaction_bad_request()
+        {
+            // Arrange
+            var payment = new CreateTransactionRequest(123, null, "0000222233334444", "02/23", "02/28", "123", 99.99M, "GBP");
+
+            // Act
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                $"Bearer", $"{MockJwtTokens.GenerateJwtToken(MockJwtTokens.PaymentGatewayApiClaims)}");
+
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var stringContent = new StringContent(JsonConvert.SerializeObject(payment), Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync(new Uri($"api/payments", UriKind.Relative), stringContent);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");
+            var responseContent = response.Content.ReadAsStringAsync().Result;
+
+            Assert.Multiple(() =>
+            {
+                responseContent.Should().NotBeNull();
+                responseContent.Should().Contain("The CardHolderName field is required");
+                responseContent.Should().Contain("400");
+            });
+        }
+
+        [Test]
+        public async Task Should_create_transaction_gateway_down()
+        {
+            // Arrange
+            var payment = new CreateTransactionRequest(123, "John Smith", "1111222233334444", "02/23", "02/28", "123", 99.99M, "GBP");
+
+            // Act
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                $"Bearer", $"{MockJwtTokens.GenerateJwtToken(MockJwtTokens.PaymentGatewayApiClaims)}");
+
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var stringContent = new StringContent(JsonConvert.SerializeObject(payment), Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync(new Uri($"api/payments", UriKind.Relative), stringContent);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+            var responseModel = JsonConvert.DeserializeObject<ErrorDetails>(
+                response.Content.ReadAsStringAsync().Result);
+
+            Assert.Multiple(() =>
+            {
+                responseModel.Should().NotBeNull();
+                responseModel.Should().BeOfType<ErrorDetails>();
+                responseModel?.Message.Should().Be("Transaction rejected by Acquirer");
+                responseModel?.StatusCode.Should().Be(500);
+            });
+        }
+
+        [Test]
+        public async Task Should_create_transaction_unauthorised()
+        {
+            // Arrange
+            var payment = new CreateTransactionRequest(123, "John Smith", "0000222233334444", "02/23", "02/28", "123", 99.99M, "GBP");
+
+            // Act
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                $"Bearer", $"");
+
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var stringContent = new StringContent(JsonConvert.SerializeObject(payment), Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync(new Uri($"api/payments", UriKind.Relative), stringContent);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
+        [Test]
+        public async Task Should_get_transaction_successfully() {
+            // Arrange
+            var payment = new CreateTransactionRequest(123, "John Smith", "0000222233334444", "02/23", "02/28", "123", 99.99M, "GBP");
+
+            // Act
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                $"Bearer", $"{MockJwtTokens.GenerateJwtToken(MockJwtTokens.PaymentGatewayApiClaims)}");
+
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var stringContent = new StringContent(JsonConvert.SerializeObject(payment), Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync(new Uri($"api/payments", UriKind.Relative), stringContent);
+            var responseModel = JsonConvert.DeserializeObject<CreateTransactionResponse>(
+                response.Content.ReadAsStringAsync().Result);
+
+            var getResponse = await _client.GetAsync($"https://localhost:7005/api/payments/{responseModel?.TransactionId}");
+            var content = await getResponse.Content.ReadAsStringAsync();
+            var transaction = JsonConvert.DeserializeObject<GetTransactionResponse>(content);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                transaction.Should().NotBeNull();
+                transaction.Should().BeOfType<GetTransactionResponse>();
+                transaction?.AcquirerTransactionId.Should().NotBeEmpty();
+                transaction?.Amount.Should().Be(payment.Amount);
+                transaction?.CardHolderName.Should().Be(payment.CardHolderName);
+                transaction?.CardNumber.Should().Contain("0000");
+                transaction?.CurrencyCode.Should().Be(payment.CurrencyCode);
+                transaction?.Cvv2.Should().BeEmpty();
+                transaction?.MerchantId.Should().Be(payment.MerchantId);
+                transaction?.Status.Should().Be((int)TransactionStatus.Success);
+                transaction?.TransactionId.Should().NotBeEmpty();
+                transaction?.ValidFrom.Should().Be(payment.ValidFrom);
+                transaction?.ValidTo.Should().Be(payment.ValidTo);
+            });
+        }
+
+        [Test]
+        public async Task Should_get_transaction_not_found() {
+            // Act
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                $"Bearer", $"{MockJwtTokens.GenerateJwtToken(MockJwtTokens.PaymentGatewayApiClaims)}");
+
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var getResponse = await _client.GetAsync($"https://localhost:7005/api/payments/{Guid.NewGuid()}");
+            var content = await getResponse.Content.ReadAsStringAsync();
+            var errorDetails = JsonConvert.DeserializeObject<ErrorDetails>(content);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+                errorDetails?.Should().NotBeNull();
+                errorDetails?.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+                errorDetails?.Message.Should().Be("Transaction not found in datastore");
+            });
+        }
+
+        [Test]
+        public async Task Should_get_transaction_unauthorised() {
+            // Act
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                $"Bearer", $"");
+
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var getResponse = await _client.GetAsync($"https://localhost:7005/api/payments/{Guid.NewGuid()}");
+
+            // Assert
+            getResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
     }
 }
